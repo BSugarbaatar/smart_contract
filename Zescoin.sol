@@ -335,7 +335,6 @@ contract ZESC is Context, IBEP20, Ownable {
 
     function _burn(address account, uint256 amount) internal {
         require(account != address(0), "BEP20: burn from the zero address");
-        require(msg.sender == owner(), "only owner");
         require(burnFlag == true, "Burn function is locked");
         _balances[account] = _balances[account].sub(
             amount,
