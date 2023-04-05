@@ -188,6 +188,7 @@ contract ZESC is Context, IBEP20, Ownable {
     {
         require(recipient != address(0), "BEP20: transfer to the zero address");
         require(_msgSender() != recipient, "BEP20: transfer to the self address" );
+        require(amount != 0, "BEP20: transfer amount zero");
         _transfer(_msgSender(), recipient, amount);
         return true;
     }
