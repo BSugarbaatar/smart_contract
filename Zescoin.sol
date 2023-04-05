@@ -72,7 +72,7 @@ interface IBEP20 {
 }
 
 contract ZESC is Context, IBEP20, Ownable {
-    using SafeMath for uint256;
+   
     mapping(address => uint256) private _balances;
     mapping(address => mapping(address => uint256)) private _allowances;
    
@@ -156,13 +156,11 @@ contract ZESC is Context, IBEP20, Ownable {
         require(amount != 0, "BEP20: transfer amount zero");
         require(sender != recipient, "BEP20: transfer to the self address");
         _transfer(sender, recipient, amount);
+           require(_allowances[sender][_msgSender()] >= amount ,  "BEP20: transfer amount exceeds allowance");
         _approve(
             sender,
             _msgSender(),
-            _allowances[sender][_msgSender()].sub(
-                amount,
-                "BEP20: transfer amount exceeds allowance"
-            )
+            _allowances[sender][_msgSender()] - amount
         );
         return true;
     }
@@ -174,7 +172,7 @@ contract ZESC is Context, IBEP20, Ownable {
         _approve(
             _msgSender(),
             spender,
-            _allowances[_msgSender()][spender].add(addedValue)
+            _allowances[_msgSender()][spender] + addedValue
         );
         return true;
     }
@@ -183,13 +181,11 @@ contract ZESC is Context, IBEP20, Ownable {
         external
         returns (bool)
     {
+        require(_allowances[_msgSender()][spender] >= subtractedValue , "BEP20: decreased allowance below zero");
         _approve(
             _msgSender(),
             spender,
-            _allowances[_msgSender()][spender].sub(
-                subtractedValue,
-                "BEP20: decreased allowance below zero"
-            )
+            _allowances[_msgSender()][spender] - subtractedValue
         );
         return true;
     }
@@ -263,12 +259,10 @@ contract ZESC is Context, IBEP20, Ownable {
         require(sender != address(0), "BEP20: transfer from the zero address");
         require(recipient != address(0), "BEP20: transfer to the zero address");
         require(_isTimeLockedAddress[sender] == false, "TimeLocked account");
+        require(_balances[sender] >= amount, "BEP20: transfer amount exceeds balance");
 
-        _balances[sender] = _balances[sender].sub(
-            amount,
-            "BEP20: transfer amount exceeds balance"
-        );
-        _balances[recipient] = _balances[recipient].add(amount);
+        _balances[sender] = _balances[sender] - amount;
+        _balances[recipient] = _balances[recipient] + amount;
 
         emit Transfer(sender, recipient, amount);
     }
@@ -276,11 +270,9 @@ contract ZESC is Context, IBEP20, Ownable {
     function _burn(address account, uint256 amount) internal {
         require(account != address(0), "BEP20: burn from the zero address");
         require(burnFlag == true, "Burn function is locked");
-        _balances[account] = _balances[account].sub(
-            amount,
-            "BEP20: burn amount exceeds balance"
-        );
-        _totalSupply = _totalSupply.sub(amount);
+        require(_balances[account] >= amount ,"BEP20: burn amount exceeds balance");
+        _balances[account] = _balances[account] - amount;
+        _totalSupply = _totalSupply - amount;
         emit Transfer(account, address(0), amount);
     }
 
