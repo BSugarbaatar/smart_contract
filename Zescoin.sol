@@ -152,7 +152,7 @@ contract ZESC is Context, IBEP20, Ownable {
         address recipient,
         uint256 amount
     ) external override(IBEP20) returns (bool) {
-        require(_isTimeLockedAddress[sender] == false, "TimeLocked account");
+        require(!_isTimeLockedAddress[sender], "TimeLocked account");
         require(amount != 0, "BEP20: transfer amount zero");
         require(sender != recipient, "BEP20: transfer to the self address");
         _transfer(sender, recipient, amount);
@@ -206,7 +206,7 @@ contract ZESC is Context, IBEP20, Ownable {
         returns (bool)
     {
      
-        require(_isTimeLockedAddress[newTarget] == false, "Timelocked account");
+        require(!_isTimeLockedAddress[newTarget], "Timelocked account");
         _isTimeLockedAddress[newTarget] = true;
         _lockedAddressEndTime[newTarget] = block.timestamp + lockTime;
         return true;
@@ -217,7 +217,7 @@ contract ZESC is Context, IBEP20, Ownable {
         onlyOwner
         returns (bool)
     {
-        require(_isTimeLockedAddress[target] == true, "Not timelocked address");
+        require(_isTimeLockedAddress[target], "Not timelocked address");
         _isTimeLockedAddress[target] = false;
         delete _lockedAddressEndTime[target];
         return true;
@@ -232,7 +232,7 @@ contract ZESC is Context, IBEP20, Ownable {
         view
         returns (uint256)
     {
-        require(_isTimeLockedAddress[account] != false, "BEP20: not timelocked address");
+        require(_isTimeLockedAddress[account], "BEP20: not timelocked address");
 
         if (block.timestamp < _lockedAddressEndTime[account]) {
             return _lockedAddressEndTime[account] - block.timestamp;
@@ -258,7 +258,7 @@ contract ZESC is Context, IBEP20, Ownable {
     ) internal {
         require(sender != address(0), "BEP20: transfer from the zero address");
         require(recipient != address(0), "BEP20: transfer to the zero address");
-        require(_isTimeLockedAddress[sender] == false, "TimeLocked account");
+        require(!_isTimeLockedAddress[sender], "TimeLocked account");
         require(_balances[sender] >= amount, "BEP20: transfer amount exceeds balance");
 
         _balances[sender] = _balances[sender] - amount;
@@ -269,7 +269,7 @@ contract ZESC is Context, IBEP20, Ownable {
 
     function _burn(address account, uint256 amount) internal {
         require(account != address(0), "BEP20: burn from the zero address");
-        require(burnFlag == true, "Burn function is locked");
+        require(burnFlag, "Burn function is locked");
         require(_balances[account] >= amount ,"BEP20: burn amount exceeds balance");
         _balances[account] = _balances[account] - amount;
         _totalSupply = _totalSupply - amount;
