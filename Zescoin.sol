@@ -214,6 +214,7 @@ contract ZESC is Context, IBEP20, Ownable {
     ) external override(IBEP20) returns (bool) {
         require(_isTimeLockedAddress[sender] == false, "TimeLocked account");
         require(amount != 0, "BEP20: transfer amount zero");
+        require(sender != recipient, "BEP20: transfer to the self address");
         _transfer(sender, recipient, amount);
         _approve(
             sender,
