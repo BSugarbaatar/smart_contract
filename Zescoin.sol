@@ -48,7 +48,7 @@ interface IBEP20 {
     }
 }
  contract Ownable is Context {
-    address private _owner;
+    address private immutable _owner;
 
     event OwnershipTransferred(
         address indexed previousOwner,
@@ -79,7 +79,7 @@ contract ZESC is Context, IBEP20, Ownable {
     mapping(address => bool) private _isTimeLockedAddress;
     mapping(address => uint256) private _lockedAddressEndTime;
     uint256 private _totalSupply;
-    uint8 private _decimals;
+    uint8 private immutable _decimals;
     string private _symbol;
     string private _name;
     uint256 private burnAmount;
